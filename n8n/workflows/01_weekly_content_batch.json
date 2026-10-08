@@ -1,0 +1,196 @@
+{
+  "id": "cfWeeklyBatch001",
+  "name": "ContentForge – Wöchentlicher Content-Batch",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "id": "b4b6fd9d-a68c-5de4-a7cc-ec69b5ff4ecd",
+      "name": "Montags 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "69303938-f811-558f-b76a-6241f1ce3289",
+      "name": "Manuell starten",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.CONTENTFORGE_API_URL }}/api/runs/batch",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $env.CONTENTFORGE_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"skip_existing\": true\n}",
+        "options": {}
+      },
+      "id": "6482284a-09d7-57cd-950e-1835c4efa130",
+      "name": "Batch in ContentForge starten",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Fasst das Ergebnis des Batch-Aufrufs als Teams-Nachricht zusammen.\nconst res = $input.first().json;\nconst created = res.created ?? [];\nconst lines = created.map((c) => `- ${c.keyword}`).join('\\n') || 'Keine neuen Zellen – alles aktuell.';\nreturn [{\n  json: {\n    created: created.length,\n    skipped: (res.skipped ?? []).length,\n    teamsConfigured: Boolean($env.TEAMS_WEBHOOK_URL),\n    teams: {\n      type: 'message',\n      attachments: [{\n        contentType: 'application/vnd.microsoft.card.adaptive',\n        content: {\n          $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',\n          type: 'AdaptiveCard',\n          version: '1.4',\n          body: [\n            { type: 'TextBlock', text: `ContentForge: ${created.length} neue Content-Pakete in Arbeit`, weight: 'Bolder', size: 'Medium', wrap: true },\n            { type: 'TextBlock', text: lines, wrap: true },\n          ],\n          actions: [{ type: 'Action.OpenUrl', title: 'Dashboard öffnen', url: $env.CONTENTFORGE_DASHBOARD_URL || 'http://localhost:8000' }],\n        },\n      }],\n    },\n  },\n}];"
+      },
+      "id": "e767b46a-4357-562b-9b39-5d7913d6c89a",
+      "name": "Zusammenfassung bauen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        520,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "9e40a27b-e98e-507f-b2a6-34101076837a",
+              "leftValue": "={{ $json.teamsConfigured }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "84d6f720-7999-596b-9865-c2d7fa2f2f29",
+      "name": "Teams konfiguriert?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        760,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.TEAMS_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.teams) }}",
+        "options": {}
+      },
+      "id": "fda50ebd-53ec-593d-9cb5-051496da680a",
+      "name": "An Teams senden",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1000,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Montags 07:00": {
+      "main": [
+        [
+          {
+            "node": "Batch in ContentForge starten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manuell starten": {
+      "main": [
+        [
+          {
+            "node": "Batch in ContentForge starten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch in ContentForge starten": {
+      "main": [
+        [
+          {
+            "node": "Zusammenfassung bauen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zusammenfassung bauen": {
+      "main": [
+        [
+          {
+            "node": "Teams konfiguriert?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Teams konfiguriert?": {
+      "main": [
+        [
+          {
+            "node": "An Teams senden",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Berlin"
+  },
+  "pinData": {}
+}

@@ -1,0 +1,234 @@
+# Wissensbasis für ContentForge.
+# "Isarlabs Cloud & AI GmbH" ist ein FIKTIVES Demo-Unternehmen. Alle Referenzprojekte sind als
+# Demo-Referenzen gekennzeichnet. Für echten Einsatz wird diese Datei durch die Fakten des
+# eigenen Unternehmens ersetzt (Leistungsseiten, freigegebene Case Studies, Regulatorik).
+
+brand:
+  name: Isarlabs Cloud & AI GmbH
+  short_name: Isarlabs
+  domain: isarlabs.example
+  city: München
+  tagline: Cloud- und KI-Plattformen, die im Betrieb funktionieren.
+  primary_color: "#0f5bd8"
+  cta:
+    label: Kostenloses Erstgespräch vereinbaren
+    url: https://isarlabs.example/kontakt
+  voice:
+    - Sachlich, konkret und lösungsorientiert. Nutzen vor Technologie.
+    - Leser:innen werden konsequent gesiezt (Sie-Form).
+    - Kurze Sätze, aktive Sprache, Fachbegriffe beim ersten Auftreten kurz erklären.
+    - Keine Superlative und keine Heilsversprechen; lieber einen belegten Fakt als drei Adjektive.
+    - Probleme der Zielgruppe zuerst benennen, dann den Lösungsweg zeigen.
+  forbidden_terms:
+    - pattern: "garantier\\w*"
+      reason: Garantieversprechen sind rechtlich riskant
+    - pattern: "100\\s?(%|prozent)"
+      reason: Absolutheitsversprechen
+    - pattern: "revolution\\w*"
+      reason: Buzzword ohne Aussage
+    - pattern: "game[- ]?changer"
+      reason: Buzzword ohne Aussage
+    - pattern: "(weltweit|markt)führend\\w*"
+      reason: Nicht belegbarer Superlativ
+    - pattern: "einzigartig\\w*"
+      reason: Nicht belegbarer Superlativ
+    - pattern: "rechtssicher\\w*"
+      reason: Rechtliche Zusicherung nur mit Legal-Freigabe
+    - pattern: "kinderleicht|spielend leicht"
+      reason: Verharmlost Projektaufwand
+  # Zahlen in Produktnamen, die ohne Faktenbeleg erlaubt sind (z. B. "Microsoft 365").
+  number_allowlist: ["365"]
+
+company_facts:
+  - id: F-ORG-1
+    text: Isarlabs ist ein Beratungs- und Engineering-Team mit Sitz in München.
+  - id: F-ORG-2
+    text: Isarlabs setzt Projekte vorrangig auf Microsoft Azure um; AWS und Google Cloud werden ebenfalls unterstützt.
+  - id: F-ORG-3
+    text: Jedes Projekt startet mit einem Proof of Concept mit klar definierten Erfolgskriterien, bevor in den Rollout investiert wird.
+  - id: F-ORG-4
+    text: Nach Projektende übergibt Isarlabs Betrieb und Know-how an das interne Team (Enablement statt Abhängigkeit).
+  - id: F-ORG-5
+    text: Die Datenverarbeitung kann auf Wunsch ausschließlich in EU-Rechenzentren erfolgen.
+  - id: F-REG-1
+    text: Der EU AI Act ist am 1. August 2024 in Kraft getreten und wird schrittweise anwendbar.
+
+services:
+  - id: rag-plattform
+    name: RAG-Wissensplattform
+    keyword: RAG-Plattform
+    summary: Ein KI-Assistent beantwortet Fragen auf Basis interner Dokumente – mit Quellenangabe und Rechtekonzept.
+    icon: magnifying-glass
+    process:
+      - title: Use Case und Datenquellen
+        text: Gemeinsam legen wir fest, welche Fragen der Assistent beantworten soll und welche Dokumente dafür zählen.
+      - title: Proof of Concept
+        text: Ein erster Assistent arbeitet mit echten Dokumenten und dem bestehenden Rechtekonzept.
+      - title: Evaluation mit Fachfragen
+        text: Die Antwortqualität wird mit realen Fragen aus dem Fachbereich gemessen und verbessert.
+      - title: Rollout und Übergabe
+        text: Betrieb, Monitoring und Weiterentwicklung gehen an Ihr Team über.
+    facts:
+      - id: F-RAG-1
+        text: Eine RAG-Plattform (Retrieval-Augmented Generation) beantwortet Fragen auf Basis interner Dokumente und zeigt die verwendeten Quellen an.
+      - id: F-RAG-2
+        text: Zugriffsrechte aus bestehenden Systemen wie SharePoint werden bei der Suche berücksichtigt, sodass Mitarbeitende nur Inhalte sehen, für die sie berechtigt sind.
+      - id: F-RAG-3
+        text: Die Antwortqualität wird vor dem Go-live mit einem Evaluations-Set aus realen Fachfragen gemessen.
+      - id: F-RAG-4
+        text: In einem Demo-Referenzprojekt verkürzte ein RAG-Assistent die Recherchezeit im technischen Service um 40 %.
+  - id: azure-migration
+    name: Azure Cloud-Migration
+    keyword: Azure-Migration
+    summary: Bestehende Anwendungen werden planbar nach Microsoft Azure migriert – mit Landing Zone und Infrastructure as Code.
+    icon: cloud-arrow-up
+    process:
+      - title: Assessment
+        text: Bestandsaufnahme aller Anwendungen und Einordnung nach Rehost, Replatform oder Refactor.
+      - title: Landing Zone
+        text: Netzwerk, Identitäten, Richtlinien und Kostenkontrolle werden festgelegt und als Code beschrieben.
+      - title: Migration in Wellen
+        text: Anwendungen ziehen schrittweise um, jede Welle mit Test und fachlicher Abnahme.
+      - title: Betrieb und Übergabe
+        text: Monitoring, Kostenkontrolle und Know-how gehen an Ihr Team über.
+    facts:
+      - id: F-AZ-1
+        text: Die Migration beginnt mit einem Assessment der bestehenden Anwendungen und einer Einordnung nach Rehost, Replatform oder Refactor.
+      - id: F-AZ-2
+        text: Infrastruktur wird als Code mit Terraform beschrieben und ist dadurch reproduzierbar und auditierbar.
+      - id: F-AZ-3
+        text: Eine Azure Landing Zone legt Netzwerk, Identitäten, Richtlinien und Kostenkontrolle fest, bevor die erste Anwendung migriert wird.
+      - id: F-AZ-4
+        text: In einem Demo-Referenzprojekt wurden 120 Anwendungen in 9 Monaten nach Azure migriert.
+  - id: kubernetes
+    name: Kubernetes-Plattform auf AKS
+    keyword: Kubernetes-Plattform
+    summary: Eine Container-Plattform auf Azure Kubernetes Service bietet GitOps und Self-Service für Entwicklungsteams.
+    icon: cube
+    process:
+      - title: Plattform-Design
+        text: Anforderungen der Entwicklungsteams, Sicherheitsvorgaben und Betriebsmodell werden festgelegt.
+      - title: Aufbau auf AKS
+        text: Cluster, Netzwerk und Zugriffe entstehen reproduzierbar mit Infrastructure as Code.
+      - title: GitOps und Self-Service
+        text: Teams deployen über Pull Requests und nutzen standardisierte Vorlagen.
+      - title: Betrieb und Übergabe
+        text: Monitoring, Updates und Plattform-Know-how gehen an Ihr Team über.
+    facts:
+      - id: F-K8S-1
+        text: Azure Kubernetes Service (AKS) betreibt containerisierte Anwendungen skalierbar, ohne dass die Control Plane selbst verwaltet werden muss.
+      - id: F-K8S-2
+        text: Mit GitOps über Argo CD werden Deployments versioniert, nachvollziehbar und per Pull Request freigegeben.
+      - id: F-K8S-3
+        text: Eine interne Developer Platform stellt Teams standardisierte Vorlagen für Build, Deployment und Monitoring bereit.
+      - id: F-K8S-4
+        text: In einem Demo-Referenzprojekt sank die Bereitstellungszeit neuer Services von 2 Wochen auf 1 Tag.
+  - id: workflow-automatisierung
+    name: KI-Workflow-Automatisierung
+    keyword: Workflow-Automatisierung
+    summary: Wiederkehrende Prozesse werden mit n8n, Python und LLMs automatisiert – mit Freigaben für kritische Entscheidungen.
+    icon: flow-arrow
+    process:
+      - title: Prozessanalyse
+        text: Wir identifizieren wiederkehrende Abläufe mit hohem manuellem Aufwand und klaren Regeln.
+      - title: Prototyp in n8n
+        text: Ein erster Workflow verbindet Ihre Systeme und übernimmt die unstrukturierten Schritte mit KI.
+      - title: Freigaben und Tests
+        text: Kritische Entscheidungen erhalten Freigabeschritte, der Workflow wird mit echten Fällen getestet.
+      - title: Betrieb und Übergabe
+        text: Monitoring, Fehlerbehandlung und Weiterentwicklung gehen an Ihr Team über.
+    facts:
+      - id: F-WF-1
+        text: Wiederkehrende Prozesse wie Dokumentenprüfung, E-Mail-Klassifizierung oder Datenübertragung zwischen Systemen werden mit n8n und Python automatisiert.
+      - id: F-WF-2
+        text: Large Language Models wie Claude übernehmen unstrukturierte Schritte, etwa das Extrahieren von Daten aus E-Mails oder PDFs.
+      - id: F-WF-3
+        text: Kritische Entscheidungen bleiben beim Menschen, denn die Workflows enthalten Freigabeschritte (Human in the Loop).
+      - id: F-WF-4
+        text: In einem Demo-Referenzprojekt reduzierte ein automatisierter Eingangsprozess die manuelle Bearbeitungszeit pro Vorgang um 65 %.
+
+industries:
+  - id: fertigung
+    name: Fertigung & Maschinenbau
+    keyword: Industrieunternehmen
+    persona: IT-Leitung oder Head of Digital eines mittelständischen Fertigungsunternehmens
+    pains:
+      - Technisches Wissen steckt in Handbüchern, Tickets und den Köpfen erfahrener Mitarbeitender
+      - Fachkräftemangel in Service und Instandhaltung
+      - Gewachsene IT-Landschaft mit vielen Insellösungen
+    icon: factory
+    regulation: EU AI Act
+    regulation_fact: F-REG-1
+    theme:
+      pattern: industrial
+      accent: "#c2410c"
+      dark: "#1c1410"
+      soft: "#fff4ec"
+    facts:
+      - id: F-IND-1
+        text: In vielen Fertigungsunternehmen ist technisches Wissen über Handbücher, Serviceberichte und Ticketsysteme verteilt.
+      - id: F-IND-2
+        text: Produktionsnahe Systeme erfordern hohe Verfügbarkeit und eine klare Trennung von IT- und OT-Netzwerken.
+  - id: energie
+    name: Energieversorger & Stadtwerke
+    keyword: Energieversorger
+    persona: CIO oder IT-Leitung eines Stadtwerks bzw. regionalen Energieversorgers
+    pains:
+      - KRITIS-Anforderungen an Betrieb und Nachweisführung
+      - Wachsende Datenmengen durch den Smart-Meter-Rollout
+      - Modernisierung von Altsystemen bei knappen Ressourcen
+    icon: lightning
+    regulation: KRITIS
+    regulation_fact: F-EN-1
+    theme:
+      pattern: grid
+      accent: "#047857"
+      dark: "#04211a"
+      soft: "#ecfdf5"
+    facts:
+      - id: F-EN-1
+        text: Energieversorger oberhalb bestimmter Schwellenwerte gelten in Deutschland als Betreiber kritischer Infrastrukturen (KRITIS) und unterliegen besonderen Sicherheitsanforderungen.
+      - id: F-EN-2
+        text: Der Smart-Meter-Rollout erhöht die Menge an Messdaten, die Energieversorger verarbeiten müssen.
+  - id: banken
+    name: Banken & Finanzdienstleister
+    keyword: Banken
+    persona: IT-Leitung oder CISO einer Regionalbank bzw. eines Finanzdienstleisters
+    pains:
+      - Regulatorische Anforderungen durch DORA und BaFin
+      - Hoher Dokumentations- und Prüfaufwand
+      - Besonders schutzbedürftige Kundendaten
+    icon: bank
+    regulation: DORA
+    regulation_fact: F-BK-1
+    theme:
+      pattern: lines
+      accent: "#1d4ed8"
+      dark: "#0a1330"
+      soft: "#eef3ff"
+    facts:
+      - id: F-BK-1
+        text: Der Digital Operational Resilience Act (DORA) gilt seit dem 17. Januar 2025 für Finanzunternehmen in der EU.
+      - id: F-BK-2
+        text: DORA verlangt unter anderem ein Management von IKT-Risiken und von Risiken durch IKT-Drittdienstleister.
+  - id: versicherungen
+    name: Versicherungen
+    keyword: Versicherer
+    persona: Bereichsleitung IT oder Operations eines Versicherungsunternehmens
+    pains:
+      - Hoher manueller Aufwand in der Schadenbearbeitung
+      - Heterogene Bestandssysteme
+      - Regulatorische Anforderungen an den IT-Betrieb durch DORA
+    icon: umbrella
+    regulation: DORA
+    regulation_fact: F-VS-1
+    theme:
+      pattern: waves
+      accent: "#be123c"
+      dark: "#220a12"
+      soft: "#fff1f3"
+    facts:
+      - id: F-VS-1
+        text: DORA gilt seit dem 17. Januar 2025 auch für Versicherungs- und Rückversicherungsunternehmen in der EU.
+      - id: F-VS-2
+        text: In der Schadenbearbeitung gehen viele Informationen als unstrukturierte Dokumente wie E-Mails, Gutachten oder Rechnungen ein.

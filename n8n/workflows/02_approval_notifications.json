@@ -1,0 +1,128 @@
+{
+  "id": "cfEventNotify001",
+  "name": "ContentForge – Freigabe-Benachrichtigungen",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "contentforge-events",
+        "options": {}
+      },
+      "id": "afecb228-c39f-5191-bbe8-7aa5105d454b",
+      "name": "ContentForge Events",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "f5dd7814-5e8b-5e50-80ca-9b5478e5c9d5"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Übersetzt ContentForge-Events in eine Adaptive Card für Microsoft Teams (Human in the Loop).\nconst EVENTS = {\n  'run.awaiting_approval': { title: 'Neuer Content wartet auf Freigabe', color: 'Accent' },\n  'run.needs_review': { title: 'Quality Gate nicht bestanden – bitte manuell prüfen', color: 'Warning' },\n  'run.failed': { title: 'Pipeline fehlgeschlagen', color: 'Attention' },\n  'run.published': { title: 'Landingpage veröffentlicht', color: 'Good' },\n};\n\nconst out = [];\nfor (const item of $input.all()) {\n  const e = item.json.body ?? item.json;\n  const cfg = EVENTS[e.event];\n  if (!cfg) continue; // z. B. run.rejected: keine Benachrichtigung nötig\n\n  const facts = [\n    { title: 'Keyword', value: e.keyword },\n    { title: 'Revisionen', value: String(e.revisions ?? 0) },\n    { title: 'Judge-Score', value: e.judge_average != null ? `${e.judge_average} / 5` : '–' },\n    { title: 'Kosten', value: `$${Number(e.cost_usd ?? 0).toFixed(3)}` },\n  ];\n  if (e.error) facts.push({ title: 'Fehler', value: e.error });\n\n  const actions = e.event === 'run.published'\n    ? [{ type: 'Action.OpenUrl', title: 'Seite öffnen', url: e.published_url }]\n    : [\n        { type: 'Action.OpenUrl', title: 'Prüfen & freigeben', url: e.dashboard_url },\n        { type: 'Action.OpenUrl', title: 'Vorschau', url: e.preview_url },\n      ];\n\n  out.push({\n    json: {\n      event: e.event,\n      run_id: e.run_id,\n      teamsConfigured: Boolean($env.TEAMS_WEBHOOK_URL),\n      teams: {\n        type: 'message',\n        attachments: [{\n          contentType: 'application/vnd.microsoft.card.adaptive',\n          content: {\n            $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',\n            type: 'AdaptiveCard',\n            version: '1.4',\n            body: [\n              { type: 'TextBlock', text: cfg.title, weight: 'Bolder', size: 'Medium', color: cfg.color, wrap: true },\n              { type: 'FactSet', facts },\n            ],\n            actions,\n          },\n        }],\n      },\n    },\n  });\n}\nreturn out;"
+      },
+      "id": "cdf5da39-8c66-50d7-b508-46b7bf7ff186",
+      "name": "Adaptive Card bauen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "9e40a27b-e98e-507f-b2a6-34101076837a",
+              "leftValue": "={{ $json.teamsConfigured }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "84d6f720-7999-596b-9865-c2d7fa2f2f29",
+      "name": "Teams konfiguriert?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.TEAMS_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.teams) }}",
+        "options": {}
+      },
+      "id": "fda50ebd-53ec-593d-9cb5-051496da680a",
+      "name": "An Teams senden",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        780,
+        -100
+      ]
+    }
+  ],
+  "connections": {
+    "ContentForge Events": {
+      "main": [
+        [
+          {
+            "node": "Adaptive Card bauen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adaptive Card bauen": {
+      "main": [
+        [
+          {
+            "node": "Teams konfiguriert?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Teams konfiguriert?": {
+      "main": [
+        [
+          {
+            "node": "An Teams senden",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Berlin"
+  },
+  "pinData": {}
+}

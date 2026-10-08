@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lösungen nach Branche | {{ brand.short_name }}</title>
+  <meta name="description" content="{{ brand.tagline }} Übersicht aller Lösungen nach Branche und Leistung.">
+  <link rel="canonical" href="{{ home_url }}">
+  <style>
+    :root { --ink: #111827; --ink-2: #374151; --muted: #5b6474; --line: #e5e7eb; --brand: {{ brand.primary_color }};
+      --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); font: 16px/1.6 var(--font); -webkit-font-smoothing: antialiased; }
+    .wrap { width: min(1160px, 100% - 40px); margin-inline: auto; }
+    header { border-bottom: 1px solid var(--line); }
+    header .wrap { height: 68px; display: flex; align-items: center; font-weight: 700; font-size: 18px; }
+    .intro { padding: 56px 0 24px; }
+    h1 { margin: 0; font-size: clamp(30px, 4vw, 44px); letter-spacing: -0.02em; line-height: 1.15; }
+    .intro p { margin: 12px 0 0; color: var(--ink-2); font-size: 18px; max-width: 60ch; }
+    .group { padding: 32px 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 32px; }
+    .group h2 { margin: 0; font-size: 20px; letter-spacing: -0.01em; display: flex; gap: 12px; align-items: center; }
+    .group h2 .ico { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; color: #fff; }
+    .group .persona { margin: 10px 0 0; color: var(--muted); font-size: 14px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+    a.card { display: block; padding: 18px; border: 1px solid var(--line); border-radius: 12px; color: inherit; text-decoration: none; transition: border-color .15s ease, box-shadow .15s ease; }
+    a.card:hover { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent); }
+    .card .svc { display: flex; gap: 8px; align-items: center; color: var(--accent); font-weight: 600; font-size: 14px; }
+    .card h3 { margin: 8px 0 6px; font-size: 17px; line-height: 1.35; }
+    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+    .empty { padding: 32px 0 64px; color: var(--ink-2); }
+    footer { border-top: 1px solid var(--line); margin-top: 32px; padding: 28px 0 40px; color: var(--muted); font-size: 14px; }
+    @media (max-width: 760px) { .group { grid-template-columns: minmax(0, 1fr); gap: 16px; } .wrap { width: min(1160px, 100% - 32px); } }
+  </style>
+</head>
+<body>
+  <header><div class="wrap">{{ brand.short_name }}</div></header>
+  <main class="wrap">
+    <div class="intro">
+      <h1>Lösungen nach Branche</h1>
+      <p>{{ brand.tagline }} Wählen Sie Ihre Branche und die Leistung, die zu Ihrer Ausgangslage passt.</p>
+    </div>
+    {% for group in groups %}
+    <section class="group" style="--accent: {{ group.industry.theme.accent }}" aria-labelledby="g-{{ group.industry.id }}">
+      <div>
+        <h2 id="g-{{ group.industry.id }}"><span class="ico" style="background: {{ group.industry.theme.dark }}">{{ icon(group.industry.icon, 22) }}</span>{{ group.industry.name }}</h2>
+        <p class="persona">Für {{ group.industry.persona }}</p>
+      </div>
+      <div class="cards">
+        {% for p in group.pages %}
+        <a class="card" href="{{ p.url }}">
+          <span class="svc">{{ icon(p.service_icon, 18) }}{{ p.service }}</span>
+          <h3>{{ p.title }}</h3>
+          <p>{{ p.description }}</p>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+    {% else %}
+    <p class="empty">{{ empty_message }}</p>
+    {% endfor %}
+  </main>
+  <footer><div class="wrap">© {{ year }} {{ brand.name }}, {{ brand.city }}. Demo-Seite, erstellt mit ContentForge</div></footer>
+</body>
+</html>

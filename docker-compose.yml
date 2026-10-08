@@ -1,0 +1,50 @@
+# Lokaler Komplett-Stack: ContentForge + n8n (Workflows werden beim Start automatisch importiert).
+#   docker compose up --build
+#   Dashboard: http://localhost:8000   ·   n8n: http://localhost:5678
+services:
+  app:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      N8N_WEBHOOK_URL: http://n8n:5678/webhook/contentforge-events
+      DASHBOARD_BASE_URL: http://localhost:8000
+      SITE_BASE_URL: http://localhost:8000/site
+    ports:
+      - "8000:8000"
+    volumes:
+      - app_data:/app/data
+      - app_site:/app/site
+
+  n8n-import:  # importiert die Workflows aus ./n8n und aktiviert den Event-Webhook
+    image: docker.n8n.io/n8nio/n8n:latest
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["n8n import:workflow --separate --input=/workflows && n8n publish:workflow --id=cfEventNotify001"]
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n/workflows:/workflows:ro
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    depends_on:
+      n8n-import:
+        condition: service_completed_successfully
+    environment:
+      GENERIC_TIMEZONE: Europe/Berlin
+      TZ: Europe/Berlin
+      N8N_SECURE_COOKIE: "false"
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"  # Workflows lesen URLs/Keys aus der Umgebung statt hartkodiert
+      CONTENTFORGE_API_URL: http://app:8000
+      CONTENTFORGE_DASHBOARD_URL: http://localhost:8000
+      CONTENTFORGE_API_KEY: ${API_KEY:-}
+      TEAMS_WEBHOOK_URL: ${TEAMS_WEBHOOK_URL:-}
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  app_data:
+  app_site:
+  n8n_data:

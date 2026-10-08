@@ -1,0 +1,22 @@
+[project]
+name = "contentforge"
+version = "1.0.0"
+description = "KI-Content-Pipeline für Programmatic SEO & B2B-Marketing – Claude, Quality Gate, n8n, Azure"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = [".venv", "site", "data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["B008"]  # FastAPI Depends() in Default-Argumenten ist idiomatisch
+
+[tool.ruff.lint.per-file-ignores]
+"app/publishing/icons.py" = ["E501"]  # generierte SVG-Pfaddaten
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"

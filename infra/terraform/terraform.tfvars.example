@@ -1,0 +1,10 @@
+# Kopieren nach terraform.tfvars (wird nicht eingecheckt) oder per TF_VAR_* Umgebungsvariablen setzen.
+environment       = "dev"
+location          = "francecentral"
+# container_image wird per -var gesetzt (siehe docs/DEPLOYMENT.md)
+anthropic_api_key = "sk-ant-..."
+app_api_key       = "ein-langer-zufaelliger-schluessel"
+llm_provider      = "anthropic" # oder "mock" für eine kostenlose Demo
+daily_budget_usd  = 5
+github_repo       = "<github-user>/contentforge"
+# n8n_webhook_url = "https://<n8n-host>/webhook/contentforge-events"

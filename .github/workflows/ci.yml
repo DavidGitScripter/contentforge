@@ -1,0 +1,69 @@
+name: CI
+
+# Läuft bei jedem Push und jedem Pull Request – unabhängig von Azure. Prüft Code, Infrastruktur und Container.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Lint, Tests & Eval
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check .
+      - run: pytest
+      # Eval als Quality Gate: bricht den Build, wenn die Pipeline weniger als 100 % publikationsreifen Content liefert
+      - run: python -m evals.run_eval --provider mock --min-pass-rate 1.0
+
+  test-postgres:
+    name: Tests gegen PostgreSQL
+    runs-on: ubuntu-latest
+    # Dieselbe Datenbank-Engine wie in Azure (PostgreSQL Flexible Server 16)
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: contentforge
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - run: pytest
+        env:
+          TEST_DATABASE_URL: postgresql+psycopg://postgres:test@localhost:5432/contentforge
+
+  terraform:
+    name: Terraform validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/terraform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false
+      - run: terraform validate
+
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t contentforge:ci .

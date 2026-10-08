@@ -1,0 +1,76 @@
+name: Deploy to Azure
+
+# Ablauf: testen -> Image in der Azure Container Registry bauen -> neue Revision der Container App -> Health-Check.
+# Voraussetzung: Infrastruktur per Terraform angelegt (mit github_repo) und Secrets/Variablen in GitHub gesetzt
+# (siehe docs/DEPLOYMENT.md). Solange ACR_NAME fehlt, wird der Workflow übersprungen statt rot zu werden.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["app/**", "knowledge/**", "requirements.txt", "Dockerfile", ".github/workflows/deploy.yml"]
+
+permissions:
+  id-token: write # OIDC: GitHub stellt ein kurzlebiges Token aus, kein Passwort in GitHub
+  contents: read
+
+concurrency: deploy-${{ github.ref }}
+
+jobs:
+  test:
+    name: Tests
+    if: vars.ACR_NAME != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check .
+      - run: pytest -q
+
+  deploy:
+    name: Build & Rollout
+    needs: test
+    runs-on: ubuntu-latest
+    environment: dev # muss zum Subject der Federated Credential passen (repo:<user>/<repo>:environment:dev)
+    env:
+      IMAGE: ${{ vars.ACR_NAME }}.azurecr.io/contentforge:${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bei Azure anmelden (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Image in der ACR bauen
+        # Gebaut wird in Azure (ACR Tasks), nicht auf dem GitHub-Runner. Tag = Commit-SHA -> jede Version rückverfolgbar.
+        run: |
+          az acr build --registry "${{ vars.ACR_NAME }}" --image "contentforge:${{ github.sha }}" \
+            --build-arg APP_VERSION=${{ github.sha }} .
+
+      - name: Neue Revision ausrollen
+        run: |
+          az containerapp update \
+            --name "${{ vars.CONTAINER_APP }}" \
+            --resource-group "${{ vars.RESOURCE_GROUP }}" \
+            --image "$IMAGE"
+
+      - name: Smoke-Test
+        run: |
+          FQDN=$(az containerapp show -n "${{ vars.CONTAINER_APP }}" -g "${{ vars.RESOURCE_GROUP }}" \
+            --query properties.configuration.ingress.fqdn -o tsv)
+          for i in $(seq 1 20); do
+            if curl -fsS "https://$FQDN/api/health"; then
+              echo "### Live: https://$FQDN" >> "$GITHUB_STEP_SUMMARY"
+              echo "Image: \`$IMAGE\`" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 6
+          done
+          echo "Health-Check fehlgeschlagen" && exit 1
